@@ -252,7 +252,7 @@ def fetch_cheapest_capacitors(volt_str = "6.3 V", user_limit = 50):
   data.append(responseData)
 
   totalCount = responseData.get("ProductCount", 0)
-  print(f"Found {totalCount} resistors")
+  print(f"Found {totalCount} capacitors")
   
 
 
