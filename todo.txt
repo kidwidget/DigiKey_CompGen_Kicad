@@ -1,0 +1,1 @@
+configure case capcitor to print out a list of the capacitors selected and filtered to verify the parser works

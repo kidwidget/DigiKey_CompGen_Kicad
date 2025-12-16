@@ -14,3 +14,8 @@ resPreamble = '''(kicad_symbol_lib
 \t(version 20231120)
 \t(generator "kidwidget's resistor generator")
 \t(generator_version "8.0")\n'''
+
+capTHRadPreamble = '''(kicad_symbol_lib
+\t(version 20231120)
+\t(generator "kidwidget's capcitor-through hole-radial generator")
+\t(generator_version "8.0")\n'''

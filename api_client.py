@@ -95,7 +95,7 @@ def extractResistanceForDF(params):
 
 def fetch_cheapest_resistors(power_str="0.25W", user_limit=50):
   """
-  Main public function to get processed product list.
+  Main public function to get processed resistor list.
   1. Auth
   2. Maps power string to Digikey ID (This map might need expanding)
   3. Fetches all pages
@@ -225,17 +225,17 @@ def parseCapacitance(capValue: str) -> float:
   else:
     return 0.0
 
-def extractCapacitanceForDDF(params):
+def extractCapacitanceForDF(params):
   try:
     # Parameter ID 2049 is Capacitance
-    capText = next((p['ValueText'] for p in pparams if p['ParameterID'] == 2049), " 0 F")
+    capText = next((p['ValueText'] for p in params if p['ParameterID'] == 2049), " 0 F")
     return parseCapacitance(capText)
   except Exception:
     return 0.0
 
 def fetch_cheapest_capacitors(volt_str = "6.3 V", user_limit = 50):
   """
-  Main public function to get processed product list.
+  Main public function to get processed capacitor list.
   1. Auth
   2. Not needed for Capacitors maps power string to Digikey ID (This map might need expanding)
   3. Fetches all pages
@@ -253,6 +253,39 @@ def fetch_cheapest_capacitors(volt_str = "6.3 V", user_limit = 50):
 
   totalCount = responseData.get("ProductCount", 0)
   print(f"Found {totalCount} capacitors")
+
+ # Pagination logic
+  if totalCount > user_limit:
+    numOfBatches = math.ceil(totalCount / user_limit)
+    remaining = totalCount - user_limit
+    index = 1
+    while remaining > 0:
+      print(f"Getting batch number {index + 1} of {numOfBatches}")
+      response, token = _getThroughholeCapacitorBatch(token, volt_str, user_limit, (index * user_limit))
+      responseData = response.json()
+      data.append(responseData)
+      index += 1
+      remaining -= user_limit
+  # Flatten products
+  all_products = []
+  for batch in data:
+    if "Products" in batch:
+      all_products.extend(batch["Products"])
+
+  if not all_products:
+    return []
+  # Pandas Processing
+  df = pd.json_normalize(all_products)
+  df['CapacitorOhms'] = df['Parameters'].apply(extractCapacitanceForDF)
+  df['CapacitorGroup'] = df['CapacitorOhms'].round(3)
+  
+  # Find cheapest per group
+  cheapest_indices = df.groupby('CapacitorGroup')['UnitPrice'].idxmin()
+  
+  selected_products = [all_products[i] for i in cheapest_indices]
+  return selected_products
+
+
   
 
 

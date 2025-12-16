@@ -1,9 +1,9 @@
 # compGen.py
 import sys
-from classes import Resistor
-from settings import resPreamble
+from classes import Resistor, Radial
+from settings import resPreamble, capTHRadPreamble
 from utils import saveFile, argumentParser
-from api_client import fetch_cheapest_resistors
+from api_client import fetch_cheapest_resistors, fetch_cheapest_capacitors
 
 def main():
   args = argumentParser()
@@ -47,9 +47,34 @@ def main():
       saveFile(')', args.sym, 'a')
       print("Done.")
 
-    case "capacitor":
-      print('capacitor - not implemented yet')
-      sys.exit(1)
+    case "capTHRad":
+      # 1. Fetch Data
+      print("Fetching capacitor (Voltage: {args.voltage}) ...")
+      selected_products = fetch_cheapest_capacitors(volt_str=args.voltage, user_limits=args.limit)
+
+      if not selected_products:
+        print("No products found,")
+        sys.exit(0)
+
+      print(f"Processing {len(selected_products)} unique capacitance values...")
+
+      # 2. Initialize Symbol Library
+      saveFile(capTHRadPreamble, args.sys, 'w')
+
+      # 3. Process Each Capacitor
+      cap = Radial()
+      cap.parse(product_json)
+
+      # Create Footprint (.kicad_mod)
+      cap.makeFootprint(args.footFolder, args)
+
+      # Append to Symbol Library (.kicad_sym)
+      cap.makeSymbol(args.sys)
+
+      # 4. Finalize Symbol Library
+      saveFile(')', args.sym, 'a')
+      print("Done.")
+
     case "diode":
       print('diode - not implemented yet')
       sys.exit(1)

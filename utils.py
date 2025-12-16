@@ -13,14 +13,14 @@ def argumentParser():
   # API specific arguments
   cmdArg.add_argument("--power", help="Power rating filter (e.g., 0.25W, 1/4W)", default="0.25W")
   cmdArg.add_argument("--limit", help="API fetch limit per batch", type=int, default=50)
-  
+  cmdArg.add_argument("--voltage", help="Voltage rating filter (e.g., 5v, 6.3v, 10v)", default = "6.3v")
   # Output arguments
   cmdArg.add_argument("--footFolder", default='.', help="Folder for generated footprints")
   cmdArg.add_argument("--sym", default="symbolLibrary.kicad_sym", help="Filename of the symbols library")
   
   # Component type
-  cmdArg.add_argument("--component", required=True, help="Type of component: resistor, capacitor, diode")
-
+  cmdArg.add_argument("--component", required=True, help="Type of component: resistor, capTHRad, diode")
+  cmdArg.add_argument()
   return cmdArg.parse_args()
 
 def grid_round_up(a):
